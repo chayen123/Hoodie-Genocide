@@ -1,0 +1,101 @@
+1.(Event : Create)
+hsp = 0;
+vsp = 0;
+grv = 0.3;
+walksp = 4;
+hascontrol = true;
+canjump = 0;
+
+2.(Event : Step)
+//Player Movement
+
+if (hascontrol)
+{
+key_left = keyboard_check(ord("A"));
+key_right =  keyboard_check(ord("D"));
+key_jump =  keyboard_check_pressed(ord("W")) || keyboard_check_pressed(vk_space);
+}
+
+else
+{
+	key_right = 0;
+	key_left = 0;
+	key_jump = 0;
+}
+//Calculate Movement
+var move = key_right - key_left;
+
+hsp = move * walksp;
+
+vsp = vsp + grv
+
+canjump -= 1;
+if(canjump > 0) && (key_jump)
+{
+		vsp = -8;
+		canjump = 0;
+}
+
+
+//Horizontal 
+if (place_meeting(x+hsp,y,oWall))
+{
+	while (!place_meeting(x+sign(hsp),y,oWall))
+	{
+		x = x + sign(hsp);
+	}
+	hsp = 0;
+}
+
+x = x + hsp;
+
+//Vertical
+if (place_meeting(x,y+vsp,oWall))
+{
+	while (!place_meeting(x,y+sign(vsp),oWall))
+	{
+		y = y + sign(vsp);
+	}
+	vsp = 0;
+}
+
+y = y + vsp;
+
+//Animation
+if (!place_meeting(x,y+1,oWall))
+{
+	sprite_index = sPlayerA;
+	image_speed = 0;
+	if (sign(vsp) > 0 ) image_index = 1; else image_index = 0;
+	
+}
+else 
+{
+	canjump = 10;
+	image_speed = 1;
+	if (hsp == 0)
+	{
+	sprite_index = sPlayer;	
+	
+	}
+	else
+	{
+	sprite_index = sPlayerR;
+	}	
+}
+
+
+
+if (hsp != 0) image_xscale = sign(hsp);
+
+3.(Event : Collision(With Enemy / Bullet))
+with (oGun) instance_destroy();
+instance_change(oPDead,true);
+
+direction = point_direction(other.x,other.y,x,y);
+hsp = lengthdir_x(6,direction);
+vsp = lengthdir_y(4,direction)-2;
+if (sign(hsp) != 0) image_xscale = sign(hsp);
+
+global.life--;
+global.kills -= global.killsthisroom;

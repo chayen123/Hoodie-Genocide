@@ -1,0 +1,113 @@
+1.(Event : Create)
+if(hasweapon)
+{
+	mygun = instance_create_layer(x,y,"Gun",oEgun);
+	with (mygun)
+	{
+		owner = other.id
+	
+	}
+	
+}
+else mygun = noone;
+
+vsp = 0;
+grv = 0.1;
+walksp = 3;
+hsp = walksp;
+
+hp = 5;
+flash = 0;
+hitfrom = 0;
+
+2.(Event : Step)
+vsp = vsp + grv
+
+// Dont walk of edges
+if (grounded) && (afraidofheight) && (!place_meeting(x+hsp,y+1,oWall))
+{
+	hsp = -hsp;
+
+
+}
+//Horizontal 
+if (place_meeting(x+hsp,y,oWall))
+{
+	while (!place_meeting(x+sign(hsp),y,oWall))
+	{
+		x = x + sign(hsp);
+	}
+	hsp = -hsp;
+}
+
+x = x + hsp;
+
+//Vertical
+if (place_meeting(x,y+vsp,oWall))
+{
+	while (!place_meeting(x,y+sign(vsp),oWall))
+	{
+		y = y + sign(vsp);
+	}
+	vsp = 0;
+}
+
+y = y + vsp;
+
+//Animation
+if (!place_meeting(x,y+1,oWall))
+{
+	grounded = false;
+	sprite_index = sEnemyA;
+	image_speed = 0;
+	if (sign(vsp) > 0 ) image_index = 1; else image_index = 0;
+}
+else 
+{
+	grounded = true;
+	image_speed = 1;
+	if (hsp == 0)
+	{
+	sprite_index = sEnemy;	
+	}
+	else
+	{
+	sprite_index = sEnemyR;
+	
+	}
+}
+
+if (hsp != 0) image_xscale = sign(hsp) ;
+
+3.(Event : Begin Step)
+if (hp <= 0)
+{
+	with (instance_create_layer(x,y,layer,oDead))
+	{
+		direction = other.hitfrom;
+		hsp = lengthdir_x(3,direction);
+		vsp = lengthdir_y(3,direction);
+		
+		if (sign(hsp) != 0) image_xscale = sign(hsp);
+	}
+	with(mygun) instance_destroy();
+	if (instance_exists(oPlayer))
+	{
+		global.kills++;
+		global.killsthisroom++;
+		with (oGame) killtextscale = 2;
+		
+	}
+	instance_destroy();
+}
+
+4.(Event : Draw)
+draw_self();
+
+if (flash > 0)
+{
+	flash--;
+	shader_set(shWhite);
+	draw_self();
+	shader_reset();
+}

@@ -1,0 +1,56 @@
+1.(Event : Create)
+hsp = 0;
+vsp = 0;
+grv = 0.2;
+done = 0;
+ScreenShake(6,60);
+image_speed = 0;
+image_index = 0;
+audio_play_sound(snPlayerDie,1,0);
+game_set_speed(30,gamespeed_fps);
+with (oCamera) follow = other.id;
+
+2.(Event : Step)
+if (done == 0)
+{
+vsp = vsp + grv
+
+//Horizontal 
+if (place_meeting(x+hsp,y,oWall))
+{
+	while (!place_meeting(x+sign(hsp),y,oWall))
+	{
+		x = x + sign(hsp);
+	}
+	hsp = 0;
+}
+
+x = x + hsp;
+
+//Vertical
+if (place_meeting(x,y+vsp,oWall))
+{
+	if (vsp > 0) 
+	{
+		done = 1;
+		image_index = 1;
+			alarm[0] = 60;
+	}
+	while (!place_meeting(x,y+sign(vsp),oWall))
+	{
+		y = y + sign(vsp);
+	}
+	vsp = 0;
+}
+	y = y + vsp;
+}
+
+3.(Event : Alarm 0)
+// Reset game speed
+game_set_speed(60,gamespeed_fps);
+SlideTrans(TRANS_MODE.GOTO,room);
+if(global.life == 0)
+{
+	audio_stop_all();
+	SlideTrans(TRANS_MODE.GOTO,lvGO);	
+}

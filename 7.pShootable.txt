@@ -1,0 +1,13 @@
+1.(Event : Begin Step)
+if (hp <= 0) instance_destroy();
+
+2.(Event : Draw)
+draw_self();
+
+if (flash > 0)
+{
+	flash--;
+	shader_set(shWhite);
+	draw_self();
+	shader_reset();
+}
